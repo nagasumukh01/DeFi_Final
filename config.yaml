@@ -1,0 +1,176 @@
+# ============================================================
+# config.yaml — Central configuration for ETGT-FRD
+# All hyperparameters, paths, and settings live here.
+# ============================================================
+
+project:
+  name: "ETGT-FRD"
+  version: "1.0.0"
+  seed: 42
+  device: "cuda"          # "cuda" or "cpu"
+  log_level: "INFO"
+
+# ----------------------------------------------------------
+# Paths
+# ----------------------------------------------------------
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  outputs: "outputs"
+  checkpoints: "outputs/checkpoints"
+  figures: "outputs/figures"
+  results: "outputs/results"
+  explanations: "outputs/explanations"
+  logs: "logs"
+
+# ----------------------------------------------------------
+# Dataset
+# ----------------------------------------------------------
+dataset:
+  features_file: "elliptic_txs_features.csv"
+  classes_file:  "elliptic_txs_classes.csv"
+  edgelist_file: "elliptic_txs_edgelist.csv"
+  num_time_steps: 49
+  # Chronological split ratios
+  train_ratio: 0.60
+  val_ratio:   0.20
+  test_ratio:  0.20
+  # Label encoding: 1=illicit, 2=licit, unknown='unknown'
+  licit_label: 0
+  illicit_label: 1
+
+# ----------------------------------------------------------
+# Wavelet Temporal Encoding
+# ----------------------------------------------------------
+wavelet:
+  wavelet_name: "db4"        # Daubechies-4
+  levels: 3                  # decomposition levels
+  embedding_dim: 32          # output size per node
+  mode: "periodization"
+
+# ----------------------------------------------------------
+# ETGT-FRD Model
+# ----------------------------------------------------------
+model:
+  name: "ETGT_FRD"
+  node_feature_dim: 165      # raw elliptic features
+  temporal_embed_dim: 32     # wavelet temporal emb
+  hidden_dim: 256
+  num_heads: 8
+  num_layers: 5              # transformer layers
+  dropout: 0.3
+  edge_feature_dim: 2        # [amount_proxy, time_delta]
+  num_classes: 2
+  # Focal loss
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  # Residual
+  use_residual: true
+
+# ----------------------------------------------------------
+# Training
+# ----------------------------------------------------------
+training:
+  epochs: 200
+  batch_size: 1              # full-graph mini-batch (node sampling)
+  learning_rate: 5.0e-4
+  weight_decay: 1.0e-5
+  lr_scheduler: "cosine"     # cosine / step / plateau
+  patience: 20               # early stopping
+  clip_grad_norm: 1.0
+  num_neighbors: [25, 10]    # NeighborLoader sampling
+
+# ----------------------------------------------------------
+# Optuna Hyperparameter Tuning
+# ----------------------------------------------------------
+optuna:
+  n_trials: 50
+  timeout: 3600              # seconds
+  metric: "f1_illicit"       # optimise for fraud F1
+  direction: "maximize"
+  pruner: "median"           # MedianPruner
+  sampler: "tpe"             # TPE sampler
+  search_space:
+    learning_rate: [1.0e-5, 1.0e-3]
+    hidden_dim: [128, 512]
+    num_heads: [4, 8, 16]
+    num_layers: [3, 4, 5, 6]
+    dropout: [0.1, 0.5]
+    focal_gamma: [1.0, 3.0]
+
+# ----------------------------------------------------------
+# Baselines
+# ----------------------------------------------------------
+baselines:
+  xgboost:
+    n_estimators: 500
+    max_depth: 8
+    learning_rate: 0.05
+    scale_pos_weight: 7      # handle imbalance
+  graphsage:
+    hidden_dim: 256
+    num_layers: 3
+    dropout: 0.3
+    epochs: 150
+  gat:
+    hidden_dim: 128
+    num_heads: 8
+    dropout: 0.3
+    epochs: 150
+  tgat:
+    hidden_dim: 256
+    num_heads: 8
+    dropout: 0.3
+    epochs: 150
+    time_enc_dim: 64
+
+# ----------------------------------------------------------
+# Explainability
+# ----------------------------------------------------------
+explainability:
+  # Monte-Carlo Dropout for Uncertainty
+  mc_dropout:
+    enabled: true
+    num_forward_passes: 3        # 3 passes = ~3 sec, good uncertainty estimate
+  
+  # GraphSVX Shapley-value explainer (NEW)
+  graphsvx:
+    enabled: true
+    num_coalitions: 8             # 8 samples = ~30-60 sec computation
+    top_k_features: 15            # Features to report
+  
+  # LLM-based explanations (NEW) - uses microsoft/Phi-3-mini-4k-instruct
+  llm_explanation:
+    enabled: false                # Set to true to enable (requires GPU)
+    model_name: "microsoft/Phi-3-mini-4k-instruct"
+    max_tokens: 150
+    temperature: 0.7
+  
+  gnexplainer:
+    epochs: 200
+    lr: 0.01
+    num_hops: 2
+    top_k_edges: 10
+  pgexplainer:
+    epochs: 30
+    lr: 0.003
+  captum:
+    method: "integrated_gradients"
+    n_steps: 50
+    internal_batch_size: 5
+  fraud_ring:
+    resolution: 1.0          # Louvain resolution
+    min_ring_size: 3
+    max_ring_size: 50
+    time_window: 3           # timesteps to consider neighbourhood
+    suspicion_threshold: 0.6 # fraction of flagged nodes to call a "ring"
+
+
+# ----------------------------------------------------------
+# Streamlit Dashboard
+# ----------------------------------------------------------
+dashboard:
+  title: "ETGT-FRD: Fraud Detection Dashboard"
+  port: 8501
+  graph_depth: 2             # ego-graph depth around selected txn
+  top_k_attention: 10        # edges to highlight

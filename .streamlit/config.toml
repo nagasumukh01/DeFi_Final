@@ -1,0 +1,13 @@
+[logger]
+# Suppress logs to prevent webhook errors from showing
+level = "warning"
+
+[server]
+# Server configuration
+maxUploadSize = 500
+enableXsrfProtection = true
+runOnSave = true
+
+[client]
+# Disable error details in browser console
+showErrorDetails = false
