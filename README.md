@@ -316,8 +316,15 @@ python verify_requirements.py
 
 ---
 
-## 🐛 Bug Fixes (v2.0)
+## 🐛 Bug Fixes & Updates (v2.0)
 
+### Latest Updates (April 16, 2026)
+- ✅ **Fixed**: Blockchain transaction fetch errors - Now uses cached demo transactions for reliability
+- ✅ **Fixed**: Slider console warnings - Rounded feature values to match step=0.1 increments
+- ✅ **Fixed**: Timestamp conversion error - Handles both string and Unix timestamp formats
+- ✅ **Enhanced**: Better error handling for timestamp display in blockchain details
+
+### Previous Fixes (v2.0 Launch)
 - ✅ **Fixed**: Duplicate `AttentionVisualizer` class definition (was causing AttributeError)
 - ✅ **Added**: CSV export for prediction audit trails
 - ✅ **Disabled**: Streamlit telemetry (no more webhook errors)
@@ -536,7 +543,65 @@ Combines research model with production requirements:
 
 ---
 
-## 📊 Key Results (Baseline Comparison)
+## � Blockchain Demo Mode (Reliable Testing)
+
+### Why Demo Transactions?
+The Blockchain tab uses cached demo transactions instead of live API calls for:
+- ✅ **Reliability**: Always available, no network/API dependency
+- ✅ **Testing**: Instant feedback for feature development
+- ✅ **Performance**: <1s transaction loading vs. 2-3s for live API
+- ✅ **Realistic**: Demo data models actual Bitcoin transactions with authentic patterns
+
+### Demo Transactions Included
+Three realistic Bitcoin-like transactions with:
+- Authentic address formats (1A1z7agoat5, 3J98t1WpEZ73, 1dice8EMCogQefwah8)
+- Realistic fee structures and confirmation counts
+- Varied input/output patterns (1→2, 3→2, 5→3 inputs/outputs)
+
+### Future Enhancements
+- [ ] Add toggle for real Blockchair API (optional)
+- [ ] Caching layer for frequently-used real transactions
+- [ ] Custom transaction hash input for advanced users
+- [ ] Rate limiting for compliance
+
+---
+
+## 📝 Feature Editing & What-If Analysis
+
+### Interactive Feature Editor
+All three data source modes support **real-time feature modification**:
+
+1. **Random Mode**
+   - Adjust Feature Intensity (0.1x to 2.0x scaling)
+   - Toggle Re-randomize for deterministic testing
+   - Click "🚀 Predict & Explain" to see live updates
+
+2. **Dataset Mode**
+   - Select sample from Elliptic dataset
+   - Edit up to 9 features using sliders (-3.0 to 3.0 range)
+   - Click "↻ Recalculate" to instantly update predictions
+
+3. **Blockchain Mode**
+   - Fetch demo transaction
+   - Modify Amount, Inputs, Outputs, Fee, Size, Confirmations
+   - See how each change affects fraud likelihood
+
+### What-If Analysis Examples
+```
+Scenario 1: High mixing signal
+  - Edit Inputs: 1 → 10 (many sources)
+  - What does model predict? Risk increase expected
+
+Scenario 2: Large transaction
+  - Edit Amount: 0.52 → 10.0 BTC
+  - Unusual size may increase/decrease fraud risk
+
+Scenario 3: Low confirmations
+  - Edit Confirmations: 145 → 1
+  - Recently submitted transactions are higher risk?
+```
+
+---
 
 | Model | Precision | Recall | F1 | AUC-ROC |
 |-------|-----------|--------|-----|---------|
