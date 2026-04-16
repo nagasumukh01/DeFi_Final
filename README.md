@@ -615,42 +615,6 @@ Scenario 3: Low confirmations
 
 ---
 
-## 👥 Development & Credits
-
-### **Project Developers**
-- **D. Nagasumukh** - Lead Engineer & Architecture Design
-- **Aneesh JP** - Core Implementation & Blockchain Integration
-
-### **Academic Guidance**
-- **Prof. Nikhil S Tengli** - Project Advisor & Mentor
-
-### **Project Information**
-- **Version**: 2.0 (Production Release)
-- **Release Date**: April 2026
-- **Repository**: [GitHub - DeFi_Final](https://github.com/nagasumukh01/DeFi_Final)
-- **License**: Open Source
-- **Status**: ✅ Production Ready
-
-### **Acknowledgments**
-This project builds upon cutting-edge research in:
-- Temporal Graph Neural Networks (TGAT, DyRep)
-- Explainable AI (Captum, SHAP, GNNExplainer)
-- Graph-based Anomaly Detection (GraphSVX)
-- Blockchain Fraud Detection (Elliptic Dataset)
-
-### **Citation**
-If you use ETGT-FRD in your research, please cite:
-```
-Nagasumukh, D., Aneesh, J.P., & Tengli, N.S. (2026).
-ETGT-FRD: Explainable Temporal Graph Transformer for Fraud Ring Detection.
-GitHub: https://github.com/nagasumukh01/DeFi_Final
-```
-
-### **Contact & Support**
-- **GitHub Issues**: [Report bugs or feature requests](https://github.com/nagasumukh01/DeFi_Final/issues)
-- **Email**: nagasumukh@[institution].edu
-- **Documentation**: See [docs/](docs/) folder for technical details
-
----
-
-**Made with ❤️ for blockchain fraud detection & explainable AI** 🚀
+**Developed by:** D. Nagasumukh | Aneesh JP  
+**Under Guidance of:** Prof. Nikhil S Tengli  
+**Version:** 2.0 | April 2026 | [GitHub Repository](https://github.com/nagasumukh01/DeFi_Final)
