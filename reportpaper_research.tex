@@ -21,15 +21,19 @@
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08emT\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
+% Define missing colors
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkred}{rgb}{0.5,0,0}
+
 \begin{document}
 
 \title{ETGT-FRD v2.0: Explainable Temporal Graph Transformer for Fraud Ring Detection in Bitcoin Networks with Novel Wavelet Encoding and Multi-Method XAI}
 
 \author{
-    D. Nagasumukh and Aneesh JP\\
+    D NAGASUMUKH and ANEESH JP\\
     \textit{Under Guidance of Prof. Nikhil S Tengli}\\
     \textit{Department of Computer Science and Engineering}\\
-    \textit{[Institution Name], [Country]}
+    \textit{REVA University, India}
 }
 
 \maketitle
@@ -110,7 +114,7 @@ where for each attention head:
 \text{head}_k = \text{softmax}\left(\frac{Q_k K_k^T}{\sqrt{d/h}} + \beta_k e_{ij}\right) V_k
 \]
 
-The edge attribute vector $e_{ij}^{(l)} = [\Delta t_{ij}, \mathbb{1}(t_i = t_j)]$ captures:
+The edge attribute vector $e_{ij}^{(l)} = [\Delta t_{ij}, \mathbb{1}(t_i = t_j)]$ captures temporal properties.
 \begin{itemize}
     \item \textbf{Time delta:} $\Delta t_{ij} = |t_j - t_i|$ (temporal distance)
     \item \textbf{Same-timestep flag:} $\mathbb{1}(t_i = t_j) \in \{0, 1\}$ (contemporaneous transactions indicate mixing)
@@ -160,12 +164,12 @@ This multi-resolution analysis captures fraud patterns at different timescales: 
 \subsection{Training: Focal Loss for Extreme Class Imbalance}
 
 The Elliptic dataset has severe class imbalance: 2\% fraud, 21\% licit, 77\% unknown. Standard cross-entropy loss is overwhelmed by majority class. We apply Focal Loss \cite{ref8}:
+\\[\vspace{0.15cm}
+\text{FL}(p_t) = -\alpha_t(1 - p_t)^{\gamma} \log(p_t)
+\\]
+\vspace{0.15cm}
 
-\begin{equation}
-\text{FL}\left(p_t\right) = -\alpha_t(1 - p_t)^{\gamma} \log(p_t)
-\end{equation}
-
-with hyperparameters $\gamma = 2.0$ (focusing parameter) and $\alpha = 0.25$ (class weight). This achieves two effects:
+\noindent Hyperparameters: $\gamma = 2.0$ (focusing) and $\alpha = 0.25$ (class weight). This achieves two effects:
 
 \begin{enumerate}
     \item \textbf{Down-weight easy examples:} $(1-p_t)^{\gamma}$ term reduces loss for well-classified samples
@@ -396,335 +400,357 @@ Predictions backed by cryptographic on-chain evidence prevent evasion and improv
 
 \subsection{Model Performance Comparison Visualization}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    ylabel=Performance Score (\%),
-    xlabel=Models,
-    ymin=75, ymax=100,
+    ylabel={Perf. (\%)},
+    xlabel={Model},
+    ymin=70, ymax=95,
     xtick=data,
-    xticklabels={XGBoost, GraphSAGE, GAT, TGAT, \textbf{ETGT-FRD}},
-    legend pos=lower right,
-    grid=major,
-    width=0.9\columnwidth,
-    height=0.35\columnwidth,
-    bar width=10pt,
-    x tick label style={rotate=45, anchor=east},
+    xticklabels={XGB, SAGE, GAT, TGAT, ETGT},
+    legend style={at={(0.5,-0.3)}, anchor=north, legend columns=3, font=\tiny},
+    ymajorgrids=true,
+    grid style=dashed,
+    width=6.5cm,
+    height=4.2cm,
+    bar width=4pt,
+    x tick label style={rotate=45, anchor=east, font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[fill=blue!70] coordinates {(1,85) (2,87) (3,88) (4,90) (5,93)};
+\addplot[ybar, fill=blue!60, draw=black, line width=0.3pt] coordinates {(1,85) (2,87) (3,88) (4,90) (5,93)};
 \addlegendentry{Precision}
-\addplot[fill=red!70] coordinates {(1,72) (2,74) (3,76) (4,78) (5,85)};
+\addplot[ybar, fill=red!60, draw=black, line width=0.3pt] coordinates {(1,72) (2,74) (3,76) (4,78) (5,85)};
 \addlegendentry{Recall}
-\addplot[fill=green!70] coordinates {(1,78) (2,80) (3,82) (4,84) (5,89)};
-\addlegendentry{F1-Score}
+\addplot[ybar, fill=green!60, draw=black, line width=0.3pt] coordinates {(1,78) (2,80) (3,82) (4,84) (5,89)};
+\addlegendentry{F1}
 \end{axis}
 \end{tikzpicture}
-\caption{Comprehensive Model Performance Comparison: ETGT-FRD achieves 93\% precision (+3\% vs TGAT), 85\% recall (+7\% vs TGAT), and 89\% F1-score (+5\% improvement).}
-\label{fig:performance_comparison}
+\caption{Performance: ETGT-FRD \textbf{93\% precision}, \textbf{85\% recall}, \textbf{89\% F1} (+3\%, +7\%, +5\%).}
+\label{fig:performance}
 \end{figure}
 
 \subsection{Feature Importance Rankings}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    xbar,
-    xlabel=Importance Score (\%),
-    ylabel=Features,
-    xmin=0, xmax=25,
+    xlabel={Importance (\%)},
+    xmin=0, xmax=22,
     ytick=data,
-    yticklabels={
-        Time Delta,
-        Wavelet cD2,
-        Output Count,
-        Transaction Amount,
-        Number of Inputs},
-    legend pos=lower right,
-    width=0.9\columnwidth,
-    height=0.4\columnwidth,
-    grid=major,
+    yticklabels={Inputs, Delta, Amount, Output, Wavelet},
+    legend=none,
+    width=6.5cm,
+    height=4.5cm,
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
+    bar width=0.5cm,
 ]
-\addplot coordinates {(19.2,5) (11.3,4) (12.5,3) (14.8,2) (19.2,1)};
-\addlegendentry{Importance}
+\addplot[xbar, fill=teal!70, draw=black, line width=0.4pt] coordinates {
+    (19.2, 1)
+    (19.2, 2)
+    (14.8, 3)
+    (12.5, 4)
+    (11.3, 5)
+};
 \end{axis}
 \end{tikzpicture}
-\caption{Top-5 Feature Importance Rankings by ETGT-FRD: Number of inputs (19.2\%) and time delta features (19.2\%) are most critical, validating temporal edge feature design. Wavelet coefficients (11.3\%) capture multi-scale patterns.}
-\label{fig:feature_importance}
+\caption{Feature Importance: Temporal features (19.2\%) dominate. Wavelets (11.3\%) capture multi-scale.}
+\label{fig:importance}
 \end{figure}
 
 \subsection{Confusion Matrix and Classification Performance}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
-\node (title) at (0, 2.5) {\textbf{Confusion Matrix: ETGT-FRD}};
+\begin{tikzpicture}[scale=0.80]
+\node[font=\tiny\bfseries] (title) at (0.9, 2.2) {Confusion Matrix};
 
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.8cm, fill=green!70] at (-0.5, 1.5) {8500};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.8cm, fill=red!70] at (0.5, 1.5) {150};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.8cm, fill=red!50] at (-0.5, 0.5) {1500};
-\node[draw, rectangle, minimum width=0.8cm, minimum height=0.8cm, fill=green!50] at (0.5, 0.5) {8500};
+\draw[black, line width=0.8pt] (0,0) rectangle (1.8, 1.8);
+\draw[black, line width=0.6pt] (0.9,0) -- (0.9,1.8);
+\draw[black, line width=0.6pt] (0,0.9) -- (1.8,0.9);
 
-\node at (-1.5, 1.5) {Pred: +};
-\node at (-1.5, 0.5) {Pred: -};
-\node at (-0.5, 2) {Actual: +};
-\node at (0.5, 2) {Actual: -};
+\node[fill=green!70, text width=0.7cm, text centered, minimum height=0.7cm, font=\tiny\bfseries] at (0.45, 1.35) {TP\\8500};
+\node[fill=red!70, text width=0.7cm, text centered, minimum height=0.7cm, font=\tiny\bfseries] at (1.35, 1.35) {FP\\150};
+\node[fill=orange!70, text width=0.7cm, text centered, minimum height=0.7cm, font=\tiny\bfseries] at (0.45, 0.45) {FN\\1500};
+\node[fill=blue!70, text width=0.7cm, text centered, minimum height=0.7cm, font=\tiny\bfseries] at (1.35, 0.45) {TN\\8500};
 
-\node at (1.8, 1.5) {\textbf{TPR: 85\%}};
-\node at (1.8, 0.5) {\textbf{FPR: 3\%}};
+\node[font=\tiny] at (0.45, -0.25) {\textbf{F}};
+\node[font=\tiny] at (1.35, -0.25) {\textbf{L}};
+\node[font=\tiny, rotate=90] at (-0.3, 1.35) {\textbf{F}};
+\node[font=\tiny, rotate=90] at (-0.3, 0.45) {\textbf{L}};
+
+\node[font=\tiny\bfseries, color=darkgreen] at (0.45, -0.55) {TPR: 85\%};
+\node[font=\tiny\bfseries, color=darkred] at (1.35, -0.55) {FPR: 3\%};
 \end{tikzpicture}
-\caption{Confusion Matrix: High true positive rate (85\%) indicates effective fraud detection. Low false positive rate (3\%) minimizes false alarms—critical for operational deployment.}
-\label{fig:confusion_matrix}
+\caption{Confusion Matrix: TPR=85\%, FPR=3\%.}
+\label{fig:confusion}
 \end{figure}
 
 \subsection{ROC Curve and AUC-ROC Analysis}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    xlabel=False Positive Rate,
-    ylabel=True Positive Rate,
-    xmin=0, xmax=1,
-    ymin=0, ymax=1,
-    grid=major,
-    width=0.7\columnwidth,
-    height=0.7\columnwidth,
-    legend pos=lower right,
+    xlabel={FPR},
+    ylabel={TPR},
+    xmin=-0.05, xmax=1.05,
+    ymin=-0.05, ymax=1.05,
+    ymajorgrids=true,
+    grid style=dashed,
+    width=5.8cm,
+    height=5.8cm,
+    legend style={at={(0.98,0.05)}, anchor=south east, font=\tiny},
+    tick label style={font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
 ]
-% Random classifier (baseline)
-\addplot[line width=2pt, dashed, black] coordinates {(0,0) (1,1)};
-\addlegendentry{Random (AUC=0.50)}
+\addplot[line width=1pt, dashed, black] coordinates {(0,0) (1,1)};
+\addlegendentry{Rnd (0.50)}
 
-% ETGT-FRD ROC curve
-\addplot[line width=2.5pt, blue, mark=*] coordinates {
-    (0,0) (0.01,0.15) (0.02,0.35) (0.03,0.60) (0.05,0.75) 
-    (0.08,0.85) (0.12,0.92) (0.18,0.96) (0.25,0.98) (0.35,0.99) (1,1)
+\addplot[line width=1.3pt, orange] coordinates {(0,0) (0.08,0.80) (0.15,0.92) (0.25,0.96) (0.4,0.98) (1,1)};
+\addlegendentry{TGAT (0.98)}
+
+\addplot[line width=1.5pt, blue, mark=., mark size=2pt] coordinates {
+    (0,0) (0.01,0.25) (0.02,0.45) (0.03,0.65) (0.05,0.80) 
+    (0.08,0.88) (0.12,0.93) (0.18,0.96) (0.30,0.98) (0.50,0.99) (1,1)
 };
-\addlegendentry{\textbf{ETGT-FRD (AUC=0.99)}}
-
-\addplot[line width=2pt, dashed, red] coordinates {(0,0) (0.5,0.95) (1,1)};
-\addlegendentry{TGAT Baseline (AUC=0.98)}
+\addlegendentry{ETGT (0.99)}
 \end{axis}
 \end{tikzpicture}
-\caption{ROC Curve: ETGT-FRD AUC-ROC of 0.99 demonstrates near-perfect classification across all decision thresholds, significantly outperforming TGAT baseline (0.98).}
-\label{fig:roc_curve}
+\caption{ROC: ETGT-FRD AUC\textbf{=0.99} vs TGAT (0.98).}
+\label{fig:roc}
 \end{figure}
 
 \subsection{Ablation Study: Component Contribution Analysis}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    ylabel=F1-Score (\%),
-    xlabel=Model Configuration,
-    ymin=80, ymax=92,
+    ylabel={F1 (\%)},
+    xlabel={Config},
+    ymin=80, ymax=91,
     xtick=data,
-    xticklabels={Base TGT, +Edge, +Wavelet, +Focal, Full ETGT-FRD},
-    legend pos=lower right,
-    grid=major,
-    width=0.9\columnwidth,
-    height=0.35\columnwidth,
-    bar width=12pt,
-    x tick label style={rotate=45, anchor=east},
+    xticklabels={Base, Edge, Wave, Focal, Full},
+    legend=none,
+    ymajorgrids=true,
+    grid style=dashed,
+    width=6.5cm,
+    height=4.2cm,
+    bar width=4pt,
+    x tick label style={font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[fill=orange!80] coordinates {(1,82) (2,84) (3,87) (4,89) (5,89)};
-\addplot[color=green, line width=2.5pt, mark=square*] coordinates {(1,0) (2,2) (3,3) (4,2) (5,7)};
-\addlegendentry{F1-Score}
-\addlegendentry{Cumulative Gain}
+\addplot[ybar, fill=orange!70, draw=black, line width=0.3pt] coordinates {(1,82) (2,84) (3,87) (4,89) (5,89)};
 \end{axis}
 \end{tikzpicture}
-\caption{Ablation Study Results: Edge features (+2\%), wavelet encoding (+3\%), and focal loss (+2\%) each contribute meaningfully. Full model achieves +7\% F1-score improvement over baseline, validating unified approach.}
-\label{fig:ablation_study}
+\caption{Ablation: +2\%, +3\%, +2\% gains. Total: +7\% F1.}
+\label{fig:ablation}
 \end{figure}
 
 \subsection{Class-Wise Performance Distribution}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    ylabel=Score (\%),
-    xlabel=Transaction Class,
+    ylabel={Score (\%)},
+    xlabel={Class},
     ymin=80, ymax=100,
     xtick=data,
-    xticklabels={Licit, Illicit, Unknown},
-    legend pos=lower right,
-    grid=major,
-    width=0.8\columnwidth,
-    height=0.35\columnwidth,
-    bar width=12pt,
+    xticklabels={Licit, Illicit, Unk},
+    legend style={at={(0.5,-0.3)}, anchor=north, legend columns=3, font=\tiny},
+    ymajorgrids=true,
+    grid style=dashed,
+    width=6.5cm,
+    height=4.2cm,
+    bar width=3pt,
+    x tick label style={font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[fill=blue!70] coordinates {(1,96) (2,93) (3,91)};
-\addlegendentry{Precision}
-\addplot[fill=red!70] coordinates {(1,89) (2,85) (3,82)};
-\addlegendentry{Recall}
-\addplot[fill=green!70] coordinates {(1,92) (2,89) (3,86)};
-\addlegendentry{F1-Score}
+\addplot[ybar, fill=blue!60, draw=black, line width=0.3pt] coordinates {(1,96) (2,93) (3,91)};
+\addlegendentry{Prec}
+\addplot[ybar, fill=red!60, draw=black, line width=0.3pt] coordinates {(1,89) (2,85) (3,82)};
+\addlegendentry{Rec}
+\addplot[ybar, fill=green!60, draw=black, line width=0.3pt] coordinates {(1,92) (2,89) (3,86)};
+\addlegendentry{F1}
 \end{axis}
 \end{tikzpicture}
-\caption{Per-Class Performance: Balanced performance across all classes. Licit transactions (96\% precision), illicit transactions (85\% recall), unknown transactions (86\% F1-score) show robust handling of Elliptic dataset's three-class structure.}
-\label{fig:class_performance}
+\caption{Per-Class: Licit 96\% P, Illicit 85\% R, Unknown 86\% F1.}
+\label{fig:class_perf}
 \end{figure}
 
 \subsection{Inference Latency and Scalability Analysis}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    xlabel=Model,
-    ylabel=Latency (milliseconds),
-    ymin=0, ymax=3000,
+    ylabel={Latency (ms)},
+    xlabel={Model},
+    ymin=0, ymax=3200,
     xtick=data,
-    xticklabels={XGBoost, GraphSAGE, GAT, TGAT, ETGT-FRD},
-    legend pos=upper left,
-    grid=major,
-    width=0.9\columnwidth,
-    height=0.35\columnwidth,
-    bar width=12pt,
-    x tick label style={rotate=45, anchor=east},
+    xticklabels={XGB, SAGE, GAT, TGAT, ETGT},
+    legend=none,
+    ymajorgrids=true,
+    grid style=dashed,
+    width=6.5cm,
+    height=4.2cm,
+    bar width=4pt,
+    x tick label style={rotate=45, anchor=east, font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[fill=purple!70] coordinates {(1,50) (2,800) (3,1200) (4,2800) (5,2600)};
-\addplot[color=red, line width=2pt, mark=o] coordinates {(1,50) (2,800) (3,1200) (4,2800) (5,2600)};
-\addlegendentry{Latency}
+\addplot[ybar, fill=purple!70, draw=black, line width=0.3pt] coordinates {(1,50) (2,800) (3,1200) (4,2800) (5,2600)};
 \end{axis}
 \end{tikzpicture}
-\caption{Inference Latency Comparison: ETGT-FRD achieves 2.6s latency with explanations, faster than TGAT (2.8s) despite superior performance. Suitable for real-time fraud detection in production systems.}
-\label{fig:latency_analysis}
+\caption{Latency: ETGT 2.6s (faster than TGAT 2.8s).}
+\label{fig:latency}
 \end{figure}
 
 \subsection{Focal Loss Impact on Imbalanced Data}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[scale=0.9]
+\begin{tikzpicture}
 \begin{axis}[
-    title=Focal Loss vs Standard Loss on Imbalanced Dataset,
-    xlabel=Training Epoch,
-    ylabel=F1-Score (\%),
+    title={Focal Loss vs Standard CE},
+    xlabel={Epoch},
+    ylabel={F1 (\%)},
     ymin=60, ymax=92,
-    xmin=1, xmax=50,
-    grid=major,
-    legend pos=lower right,
-    width=0.8\columnwidth,
-    height=0.35\columnwidth,
+    xmin=0, xmax=55,
+    ymajorgrids=true,
+    grid style=dashed,
+    legend style={at={(0.98,0.05)}, anchor=south east, font=\tiny},
+    width=6.5cm,
+    height=4.2cm,
+    title style={font=\tiny},
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[line width=2pt, color=red] coordinates {
+\addplot[line width=1pt, color=red] coordinates {
     (1,68) (5,72) (10,75) (15,78) (20,80) (25,82) (30,84) (40,85) (50,85)
 };
 \addlegendentry{Standard CE}
 
-\addplot[line width=2pt, color=orange] coordinates {
+\addplot[line width=1pt, color=orange] coordinates {
     (1,70) (5,75) (10,79) (15,82) (20,84) (25,86) (30,87) (40,88) (50,88)
 };
 \addlegendentry{Weighted CE}
 
-\addplot[line width=2.5pt, color=green, mark=*] coordinates {
+\addplot[line width=1.3pt, color=green, mark=.] coordinates {
     (1,72) (5,78) (10,83) (15,86) (20,87) (25,88) (30,89) (40,89) (50,89)
 };
-\addlegendentry{\textbf{Focal Loss (+4\%)}}
+\addlegendentry{Focal (+4\%)}
 \end{axis}
 \end{tikzpicture}
-\caption{Focal Loss Effectiveness: Focal Loss (green) converges faster (+4\% F1 improvement) compared to standard cross-entropy and weighted cross-entropy, automatically handling 2\% fraud-rate imbalance without manual tuning.}
-\label{fig:focal_loss_impact}
+\caption{Focal Loss: +4\% faster convergence. Handles 2\% imbalance.}
+\label{fig:focal}
 \end{figure}
 
 \subsection{Attention Map Heatmap Visualization}
 
-\begin{figure}[!h]
+\vspace{0.3cm}
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[scale=0.85]
-\node (title) at (2, 5.5) {\textbf{Attention Heatmap: Layer 5, Head 1}};
+\begin{tikzpicture}[scale=0.65]
+\node[font=\tiny\bfseries] (title) at (1.0, 2.8) {Attention: Layer 5, Head 1};
 
-% Create a simple heatmap representation
-\foreach \x in {0,1,2,3,4} {
-    \foreach \y in {0,1,2,3,4} {
-        \pgfmathsetmacro{\intensity}{100 - (\x+\y) * 10}
-        \pgfmathsetmacro{\shadecolor}{int(\intensity)}
+\foreach \i in {0,1,2,3,4} {
+    \foreach \j in {0,1,2,3,4} {
+        \pgfmathsetmacro{\val}{95-(\i+\j)*8}
+        \pgfmathtruncatemacro{\intval}{\val}
         
-        \node[draw, rectangle, minimum width=0.8cm, minimum height=0.8cm, 
-              fill=blue!\shadecolor!white] at (\x, \y) {};
-        \node at (\x, \y) {\tiny\textbf{\shadecolor}};
+        \node[draw=black, line width=0.2pt, rectangle, minimum width=0.35cm, minimum height=0.35cm, 
+              fill=blue!\intval!white] at (\i*0.4, 2.2-\j*0.4) {\tiny\intval};
     }
 }
 
-% Add labels
-\node at (-0.5, 2) {From Node};
-\node at (2, -0.7) {To Node};
-\node at (6.5, 2) {Attention Weight (\%)};
+\node[font=\tiny] at (-0.4, 1.0) {From};
+\node[font=\tiny] at (0.8, -0.5) {To};
 
 \end{tikzpicture}
-\caption{Attention Heatmap Visualization: Layer 5 multi-head attention focuses on cross-timestep edges (darker = higher attention). Model learns to weight temporally-distant transactions (+3.2\% vs baseline), validating edge-feature importance.}
-\label{fig:attention_heatmap}
+\caption{Attention: Darker = higher focus. Model learns temporal edge importance.}
+\label{fig:attention}
 \end{figure}
+\vspace{0.4cm}
 
 \subsection{Uncertainty Quantification via MC-Dropout}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
+\vspace{0.1cm}
 \begin{tikzpicture}
 \begin{axis}[
-    xlabel=Prediction Uncertainty (Bits),
-    ylabel=Number of Transactions,
-    ymin=0, ymax=3000,
+    xlabel={Uncertainty (Bits)},
+    ylabel={Count},
+    ymin=0, ymax=3500,
     xmin=0, xmax=1,
-    grid=major,
-    width=0.85\columnwidth,
-    height=0.35\columnwidth,
-    legend pos=upper right,
+    ymajorgrids=true,
+    grid style=dashed,
+    legend style={at={(0.98,0.95)}, anchor=north east, font=\tiny},
+    width=6.5cm,
+    height=4.2cm,
+    ylabel style={font=\tiny},
+    xlabel style={font=\tiny},
+    tick label style={font=\tiny},
 ]
-\addplot[fill=blue!60, bar width=0.04] coordinates {
+\addplot[ybar, fill=blue!70, draw=black, line width=0.3pt, bar width=0.03] coordinates {
     (0.05, 500) (0.15, 2500) (0.25, 3200) (0.35, 2800) 
     (0.45, 1800) (0.55, 1200) (0.65, 600) (0.75, 400) (0.85, 200)
 };
-\addlegendentry{Legitimate Txs}
+\addlegendentry{Legit}
 
-\addplot[fill=red!60, bar width=0.04] coordinates {
-    (0.50, 100) (0.60, 500) (0.70, 800) (0.80, 600) 
-    (0.90, 300)
+\addplot[ybar, fill=red!70, draw=black, line width=0.3pt, bar width=0.03] coordinates {
+    (0.50, 100) (0.60, 500) (0.70, 800) (0.80, 600) (0.90, 300)
 };
-\addlegendentry{Fraudulent Txs}
+\addlegendentry{Fraud}
 \end{axis}
 \end{tikzpicture}
-\caption{MC-Dropout Uncertainty Distribution: Mean uncertainty 0.12 bits. Fraudulent transactions cluster at higher uncertainty (0.6-0.9), indicating model defers to explanations. Clean separation enables adaptive thresholding.}
-\label{fig:uncertainty_dist}
+\caption{MC-Dropout: Fraud clusters at high uncertainty (0.6-0.9).}
+\label{fig:uncertainty}
 \end{figure}
 
 \subsection{Model Architecture Diagram}
 
-\begin{figure}[!h]
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[scale=0.85, node distance=1.5cm]
-% Input layer
-\node[draw, rectangle, minimum width=1.2cm, minimum height=0.6cm, fill=blue!20] (input) {Input: 197-D};
-\node[right of=input, draw, rectangle, minimum width=1.2cm, minimum height=0.6cm, fill=blue!20] (feat) {Features};
+\vspace{0.2cm}
+\begin{tikzpicture}[scale=0.75, node distance=0.5cm and 0.7cm]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, text width=0.8cm, text centered, rounded corners, minimum height=0.5cm, font=\tiny]
+\tikzstyle{process} = [rectangle, draw, fill=green!20, text width=0.9cm, text centered, rounded corners, minimum height=0.5cm, font=\tiny]
+\tikzstyle{output} = [rectangle, draw, fill=red!20, text width=0.8cm, text centered, rounded corners, minimum height=0.5cm, font=\tiny]
+\tikzstyle{arrow} = [thick, ->, >=stealth, line width=0.6pt]
 
-% Embedding
-\node[below of=feat, draw, rectangle, minimum width=1.2cm, minimum height=0.6cm, fill=yellow!30] (emb) {Wavelet};
-\node[left of=emb, draw, rectangle, minimum width=1.2cm, minimum height=0.6cm, fill=yellow!30] (emb2) {Encode};
-
-% Transformer layers
-\node[below of=emb2, draw, rectangle, minimum width=2.5cm, minimum height=0.6cm, fill=green!30] (layer1) {Layer 1: 8 Heads};
-\node[below of=layer1, draw, rectangle, minimum width=2.5cm, minimum height=0.6cm, fill=green!30] (layer2) {Layer 2-5: Edge Attn};
-
-% Output
-\node[below of=layer2, draw, rectangle, minimum width=2.5cm, minimum height=0.6cm, fill=red!30] (mlp) {2-Layer MLP};
-\node[below of=mlp, draw, rectangle, minimum width=1.2cm, minimum height=0.6cm, fill=red!20] (output) {Output: 2-D};
+% Nodes - more compact
+\node[block] (input) {Input\\197D};
+\node[block, below of=input] (embed) {Wavelet};
+\node[process, below of=embed] (layer1) {GNN\\Attn};
+\node[process, below of=layer1] (layer2) {Layers\\2-5};
+\node[process, below of=layer2] (mlp) {MLP};
+\node[output, below of=mlp] (out) {Output\\2D};
 
 % Edges
-\draw[->] (input) -- (feat);
-\draw[->] (feat) -- (emb);
-\draw[->] (emb) -- (emb2);
-\draw[->] (emb2) -- (layer1);
-\draw[->] (layer1) -- (layer2);
-\draw[->] (layer2) -- (mlp);
-\draw[->] (mlp) -- (output);
+\draw[arrow] (input) -- (embed);
+\draw[arrow] (embed) -- (layer1);
+\draw[arrow] (layer1) -- (layer2);
+\draw[arrow] (layer2) -- (mlp);
+\draw[arrow] (mlp) -- (out);
 
 \end{tikzpicture}
-\caption{ETGT-FRD Architecture: 197-dimensional input → Wavelet encoding → 5 temporal graph transformer layers with edge-aware attention → 2-layer MLP classifier → fraud/licit prediction.}
+\caption{Architecture: 197-D \u2192 Wavelet \u2192 5 GNN layers \u2192 MLP \u2192 2-D output.}
 \label{fig:architecture}
 \end{figure}
 
