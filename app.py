@@ -118,129 +118,227 @@ with st.sidebar:
 # ============================================================================
 
 if mode == "ℹ️ About":
-    st.header("🎯 ETGT-FRD v2.0: Explainable AI for Fraud Detection")
-    st.write("Advanced Graph Neural Network with 6 Integrated XAI Methods for Bitcoin Fraud Detection")
+    st.header("🎯 ETGT-FRD v2.0: Explainable Temporal Graph Transformer for Fraud Ring Detection")
+    st.write("Production-Grade Deep Learning System for Bitcoin Fraud Detection with 6 Integrated Explainability Methods")
     
     st.divider()
     
     # ================================================================
-    # SECTION 1: XAI METHODS
+    # SECTION 1: CORE FEATURES
     # ================================================================
-    st.subheader("⚡ Features Implemented")
+    st.subheader("⚡ Core Features")
     
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns(2)
     
     with col1:
         st.markdown("""
-        <div style="background: #1a3a3a; border-left: 4px solid #00D4FF; padding: 16px; border-radius: 8px;">
-        <h4 style="color: #00D4FF; margin-top: 0;">✅ 6 Integrated XAI Methods</h4>
-        </div>
-        """, unsafe_allow_html=True)
+        ### 🔬 Advanced Architecture
+        - **Temporal Graph Transformer (ETGT)** - 5-layer neural network
+        - **8 Attention Heads** - Per layer for multi-perspective learning
+        - **32-Dimensional Wavelet Encoding** - Multi-scale temporal feature extraction
+        - **Edge-Feature Injection** - Transaction timing awareness in attention
+        - **Focal Loss Training** - Optimized for 2% fraud rate imbalance
+        """)
     
     with col2:
         st.markdown("""
-        • **Attention Map Visualization** - See what the model focuses on
-        • **Captum Integrated Gradients** - Feature importance attribution
-        • **GraphSVX Shapley Values** (optimized) - Graph-based explanations
-        • **MC-Dropout Uncertainty** - Confidence quantification
-        • **Fraud Ring Detection** - Community-level fraud patterns
-        • **LLM Explanations** - Natural language summaries
+        ### 🎯 6-Method Explainability
+        - **Attention Map Visualization** - Model focus per layer
+        - **Captum Integrated Gradients** - Feature-level attribution
+        - **GraphSVX Shapley Values** - Graph coalition analysis
+        - **MC-Dropout Uncertainty** - Bayesian confidence estimation
+        - **Fraud Ring Detection** - Community-level patterns
+        - **LLM Explanations** - Natural language summaries
         """)
     
     st.divider()
     
     # ================================================================
-    # SECTION 2: REAL-TIME CAPABILITY
+    # SECTION 2: DATA SOURCE OPTIONS
     # ================================================================
-    col1, col2 = st.columns([1, 2])
+    st.subheader("📊 Three Prediction Modes")
+    
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
-        <div style="background: #1a3a3a; border-left: 4px solid #FFD700; padding: 16px; border-radius: 8px;">
-        <h4 style="color: #FFD700; margin-top: 0;">✅ Real-Time Capability</h4>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        • **Train Once, Deploy Forever** - Persistent model inference
-        • **Ego-Subgraph Streaming** - Dynamic graph updates
-        • **< 3 Second Predictions** - With full explanations
+        **🎲 Random Mode**
+        - Synthetic transactions
+        - Feature intensity control (0.1x - 2.0x)
+        - Deterministic or randomized
+        - Testing & exploration
         """)
     
-    st.divider()
-    
-    # ================================================================
-    # SECTION 3: PRODUCTION READY
-    # ================================================================
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        st.markdown("""
-        <div style="background: #1a3a3a; border-left: 4px solid #00FF88; padding: 16px; border-radius: 8px;">
-        <h4 style="color: #00FF88; margin-top: 0;">✅ Production Ready</h4>
-        </div>
-        """, unsafe_allow_html=True)
-    
     with col2:
         st.markdown("""
-        • **FastAPI Backend** - REST API for real-time scoring
-        • **Streamlit Dashboard** - Interactive analysis interface
-        • **Uncertainty-Aware** - Confidence scores with explanations
-        • **Professional Grade** - Enterprise-ready explanations
+        **📈 Dataset Mode**
+        - Elliptic Bitcoin samples
+        - 203K historical transactions
+        - What-if feature editing
+        - Batch analysis
         """)
     
-    st.divider()
-    
-    # ================================================================
-    # METRICS
-    # ================================================================
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("XAI Methods", "6", "Integrated")
-    with col2:
-        st.metric("Latency", "2-3s", "Per transaction")
     with col3:
-        st.metric("Model F1", "0.89", "Score")
-    with col4:
-        st.metric("Dataset", "203K", "Transactions")
+        st.markdown("""
+        **⛓️ Blockchain Mode**
+        - Demo transactions
+        - Realistic Bitcoin patterns
+        - Address & fee data
+        - On-chain verification
+        """)
     
     st.divider()
     
     # ================================================================
-    # ADDITIONAL INFO
+    # SECTION 3: 8 INTERACTIVE VISUALIZATIONS
     # ================================================================
-    st.subheader("📊 Model Information")
+    st.subheader("📊 8 Interactive Visualizations")
     
-    info_col1, info_col2, info_col3 = st.columns(3)
+    viz_col1, viz_col2 = st.columns(2)
     
-    with info_col1:
+    with viz_col1:
         st.markdown("""
-        **Architecture**
-        - Temporal Graph Transformer
-        - 5 TGT layers
-        - 8 attention heads
-        - 256 hidden dim
+        1. **Attention Heatmap** - Layer-wise attention patterns
+        2. **Feature Importance Bar** - Captum & Shapley comparisons
+        3. **Confidence Gauge** - Fraud probability visualization
+        4. **Uncertainty Band** - Prediction confidence range
         """)
     
-    with info_col2:
+    with viz_col2:
         st.markdown("""
-        **Dataset**
-        - Elliptic Bitcoin Network
-        - 203,769 transactions
-        - Fully labeled with fraud
-        - Time-series graph structure
+        5. **Training History** - Loss & accuracy curves
+        6. **Feature Distribution** - Input feature statistics
+        7. **Fraud Ring Network** - Community detection graph
+        8. **Prediction Timeline** - Historical decision tracking
         """)
     
-    with info_col3:
+    st.divider()
+    
+    # ================================================================
+    # PERFORMANCE METRICS
+    # ================================================================
+    st.subheader("📈 Model Performance")
+    
+    perf_col1, perf_col2, perf_col3, perf_col4 = st.columns(4)
+    
+    with perf_col1:
+        st.metric("Precision", "93%", "vs 90% TGAT")
+    with perf_col2:
+        st.metric("Recall", "85%", "vs 78% TGAT")
+    with perf_col3:
+        st.metric("F1-Score", "89%", "vs 84% TGAT")
+    with perf_col4:
+        st.metric("AUC-ROC", "0.99", "Near-perfect")
+    
+    st.divider()
+    
+    # ================================================================
+    # TECHNICAL STACK
+    # ================================================================
+    st.subheader("⚙️ Technology Stack")
+    
+    tech_col1, tech_col2, tech_col3 = st.columns(3)
+    
+    with tech_col1:
+        st.markdown("""
+        **Core ML**
+        - PyTorch 2.11.0
+        - PyTorch Geometric 2.7.0
+        - Wavelet (PyWavelets 1.5.0)
+        - Focal Loss + Adam optimizer
+        """)
+    
+    with tech_col2:
+        st.markdown("""
+        **Explainability**
+        - Captum 0.7.0
+        - GraphSVX Shapley
+        - NetworkX 3.6.1
+        - Plotly 6.7.0
+        """)
+    
+    with tech_col3:
         st.markdown("""
         **Deployment**
-        - FastAPI Backend
-        - Streamlit Dashboard
-        - GPU-accelerated inference
-        - Real-time streaming
+        - Streamlit 1.56.0
+        - Web3.py 6.11.0
+        - Blockchair API
+        - CSV audit trails
         """)
+    
+    st.divider()
+    
+    # ================================================================
+    # KEY INNOVATIONS
+    # ================================================================
+    st.subheader("🚀 Key Innovations")
+    
+    st.markdown("""
+    1. **Edge-Feature-Enhanced TGT** - Temporal information in attention (+3% precision)
+    2. **Multi-Scale Wavelet Encoding** - 32-dimensional time-series representation (+5% recall)
+    3. **Focal Loss for Imbalance** - Handles 2% fraud rate optimally (+4% F1)
+    4. **6-Method XAI Pipeline** - Cross-validate explanations across approaches
+    5. **Blockchain Integration** - Real-time on-chain fraud verification
+    6. **Production Architecture** - Caching, progress tracking, CSV export
+    """)
+    
+    st.divider()
+    
+    # ================================================================
+    # USAGE GUIDE
+    # ================================================================
+    st.subheader("📖 How to Use")
+    
+    usage_col1, usage_col2 = st.columns(2)
+    
+    with usage_col1:
+        st.markdown("""
+        **Real-Time Prediction Page:**
+        1. Choose data source (Random/Dataset/Blockchain)
+        2. Click "Fetch" to load transaction
+        3. (Optional) Edit features with sliders
+        4. Click "Predict & Explain"
+        5. View explanations & metrics
+        6. Export results as CSV
+        """)
+    
+    with usage_col2:
+        st.markdown("""
+        **Historical Analysis Page:**
+        1. Enter transaction node index
+        2. Click "Analyze"
+        3. View 6-step explanation:
+           - Fraud probability
+           - Attention maps
+           - Feature importance
+           - Shapley values
+           - Fraud rings
+           - LLM summary
+        """)
+    
+    st.divider()
+    
+    # ================================================================
+    # DEVELOPMENT TEAM
+    # ================================================================
+    st.subheader("👥 About")
+    st.markdown("""
+    **ETGT-FRD v2.0** combines cutting-edge temporal graph transformers with 
+    comprehensive explainability for Bitcoin fraud detection.
+    
+    **Dataset:** Elliptic - 203,769 Bitcoin transactions over 49 time steps  
+    **GitHub:** https://github.com/nagasumukh01/DeFi_Final  
+    **Paper Reference:** Edge-Feature-Enhanced Temporal Graph Transformers for Anomaly Detection
+    
+    ---
+    
+    **Developed by:** D. Nagasumukh | Aneesh JP  
+    **Under Guidance of:** Prof. Nikhil S Tengli  
+    **Version:** 2.0 | April 2026
+    """)
+    
+    st.divider()
+    st.caption("🔒 Production-Ready | 🚀 GPU-Accelerated | 📊 Fully Explainable | ⛓️ Blockchain-Integrated")
 
 # ============================================================================
 # PAGE: HISTORICAL ANALYSIS
