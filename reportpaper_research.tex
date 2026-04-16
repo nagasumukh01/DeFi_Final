@@ -71,9 +71,9 @@ Traditional fraud detection relies on statistical features and rule-based system
 \textbf{GraphSAGE} \cite{ref4} samples node neighborhoods for scalability but treats all edges equally, missing temporal semantics. \textbf{GAT} \cite{ref5} uses attention over neighbors but doesn't incorporate edge attributes. \textbf{TGAT} \cite{ref3} combines temporal and attention mechanisms but applies temporal encoding \textit{separately} from attention, losing critical synergies between time information and feature interactions.
 
 Our ETGT unifies both mechanisms by directly encoding temporal edges in the attention computation:
-\begin{equation}
+\[
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + W_{edge} \cdot e_{ij}\right) V
-\end{equation}
+\]
 
 where the edge bias term $W_{edge} \cdot e_{ij}$ directly modulates attention weights based on temporal properties.
 
@@ -96,14 +96,14 @@ Our 6-method approach provides robust triangulation: no single method dominates,
 
 The ETGT-FRD model is a 5-layer temporal graph transformer architecture. The core innovation is edge-aware attention:
 
-\begin{equation}
+\[
 h_i^{(l+1)} = \text{LayerNorm}\left(h_i^{(l)} + \text{MultiHeadAttention}_{\text{edge}}(h_i^{(l)}, h_j^{(l)}, e_{ij}^{(l)})\right)
-\end{equation}
+\]
 
 where for each attention head:
-\begin{equation}
+\[
 \text{head}_k = \text{softmax}\left(\frac{Q_k K_k^T}{\sqrt{d/h}} + \beta_k e_{ij}\right) V_k
-\end{equation}
+\]
 
 The edge attribute vector $e_{ij}^{(l)} = [\Delta t_{ij}, \mathbb{1}(t_i = t_j)]$ captures:
 \begin{itemize}
@@ -112,9 +112,9 @@ The edge attribute vector $e_{ij}^{(l)} = [\Delta t_{ij}, \mathbb{1}(t_i = t_j)]
 \end{itemize}
 
 Each of 5 layers contains 8 attention heads with $d_k = 32$ dimensions. The final layer output passes through a 2-layer MLP:
-\begin{equation}
+\[
 \text{logits} = \text{MLP}(h_i^{(5)}) = \text{ReLU}(h_i^{(5)} W_1 + b_1) W_2 + b_2
-\end{equation}
+\]
 
 producing 2 classes (fraud/licit).
 
@@ -126,7 +126,7 @@ Original Elliptic features represent static transaction properties (amount, inpu
 
 \begin{equation}
 F_{\text{wavelet}} = \text{DWT}_{\text{dB4}}(F_{\text{original}}) \in \mathbb{R}^{32}
-\]
+\end{equation}
 
 generating 197-dimensional input:
 \begin{equation}
@@ -182,17 +182,17 @@ Instead of relying on a single interpretation method, ETGT-FRD employs six compl
 
 Extracts per-head attention weights from all 5 layers (40 heads total):
 
-\begin{equation}
+\[
 \text{Importance}_i = \frac{1}{L \cdot H} \sum_{l=1}^{L} \sum_{h=1}^{H} \sum_{j} \text{Attention}_{i,j}^{(l,h)}
-\end{equation}
+\]
 
 \subsection{Method 2: Captum Integrated Gradients}
 
 Gradient-based attribution integrating from baseline to actual input:
 
-\begin{equation}
+\[
 \text{IG}_i = (x_i - x_i^{\text{baseline}}) \times \int_{\alpha=0}^{1} \frac{\partial f(\text{baseline} + \alpha(x - \text{baseline}))}{\partial x_i} d\alpha
-\end{equation}
+\]
 
 \subsection{Method 3: GraphSVX Shapley Values}
 
@@ -202,9 +202,9 @@ Game-theoretic coalition analysis computing Shapley values for feature subsets. 
 
 Bayesian approximation via 10 stochastic forward passes:
 
-\begin{equation}
+\[
 p(y | x) \approx \frac{1}{T} \sum_{t=1}^{T} f_{\text{dropout}}(x, \theta_t)
-\end{equation}
+\]
 
 Variance across passes estimates prediction uncertainty.
 
@@ -373,9 +373,9 @@ Strong performance across all classes, with good handling of fraudulent vs. lici
 
 Integration with Blockchair API provides real-time Bitcoin network verification:
 
-\begin{equation}
+\[
 \text{OnChainScore} = w_1 \cdot \text{MixingSignal} + w_2 \cdot \text{IOAnalysis} + w_3 \cdot \text{FeeAnomaly}
-\end{equation}
+\]
 
 Verification includes:
 \begin{itemize}
@@ -491,267 +491,6 @@ D. Weber et al., ``Anti-money laundering in Bitcoin: experimenting with graph co
 
 \bibitem{ref10}
 S.M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Proc. Adv. Neural Inf. Process. Syst.}, 2017, pp. 4765--4774.
-
-\end{thebibliography}
-
-\end{document}
-
-\maketitle
-
-\begin{abstract}
-
-Bitcoin fraud detection remains a critical challenge in blockchain security and financial crime prevention. This paper introduces ETGT-FRD v2.0, a production-grade deep learning system that combines Temporal Graph Transformers with comprehensive explainability for Bitcoin fraud detection on the Elliptic dataset. Our key innovation is the Edge-Feature-Enhanced Temporal Graph Transformer (ETGT) architecture that injects temporal edge features directly into the attention mechanism, achieving 93\% precision and 85\% recall. We integrate six complementary explainability methods (Attention Maps, Captum Integrated Gradients, GraphSVX Shapley, MC-Dropout Uncertainty, Fraud Ring Detection, and LLM Explanations) to provide multi-perspective fraud explanations. Additionally, we implement blockchain cross-verification via Blockchair API for real-time on-chain fraud verification. Our system achieves 0.99 AUC-ROC and demonstrates +3\% precision improvement over prior TGAT methods while maintaining sub-3-second inference latency. The approach is deployed as a production-ready Streamlit dashboard with interactive visualizations and audit trail capabilities.
-
-\end{abstract}
-
-\begin{IEEEkeywords}
-Temporal Graph Transformer, Fraud Detection, Explainable AI, Bitcoin Networks, Blockchain Integration, Graph Neural Networks, Wavelet Encoding
-\end{IEEEkeywords}
-
-\IEEEpeerreviewmaketitle
-
-\section{Introduction}
-
-Bitcoin fraud and anti-money laundering (AML) detection represents one of the most critical challenges in blockchain technology. According to recent statistics, Bitcoin fraud affects roughly 12\% of transactions, with the percentage varying by transaction stage and cryptocurrency exchange \cite{ref1}. The complex nature of transaction patterns, mixing protocols, and organized fraud rings makes traditional rule-based detection methods insufficient.
-
-Graph Neural Networks (GNNs) have shown promise in detecting anomalies in transaction networks by leveraging both node features and edge connections. However, existing approaches like GraphSAGE, Graph Attention Networks (GAT), and Temporal Graph Attention Networks (TGAT) fail to explicitly model temporal dependencies in transaction flows. The Elliptic dataset provides 203,769 Bitcoin transactions across 49 time steps with full labels for mining research on this domain \cite{ref2}.
-
-Our contributions address three key limitations:
-
-\begin{enumerate}
-    \item \textbf{Edge-Feature-Enhanced Temporal Graph Transformer:} We propose ETGT, which injects temporal edge features (time deltas, same-timestep flags) directly into the attention mechanism, outperforming TGAT by 3\% in precision.
-    
-    \item \textbf{Multi-Scale Wavelet Temporal Encoding:} Instead of standard positional encoding, we employ PyWavelets decomposition (32 dimensions) to capture multi-frequency temporal patterns, improving recall by 5\%.
-    
-    \item \textbf{Unified 6-Method Explainability Pipeline:} We triangulate fraud explanations across six complementary methods to reduce false positives and increase user trust.
-    
-    \item \textbf{Blockchain Cross-Verification Layer:} Real-time Blockchair API integration provides on-chain evidence to verify predictions and prevent evasion.
-\end{enumerate}
-
-\section{Related Work}
-
-\subsection{Graph-Based Fraud Detection}
-
-Traditional fraud detection relies on statistical features and rule-based systems \cite{ref1}. Recent advances apply GNNs:
-
-\textbf{GraphSAGE} \cite{ref1} samples node neighborhoods for scalability but treats all edges equally, missing temporal semantics. \textbf{GAT} \cite{ref1} uses attention over neighbors but doesn't incorporate edge attributes. \textbf{TGAT} \cite{ref1} combines temporal and attention mechanisms but applies temporal encoding separately from attention, losing potential synergies.
-
-Our ETGT unifies both mechanisms by directly encoding temporal edges in the attention computation: $\text{Attention} = \text{softmax}(\frac{Q \cdot K}{\sqrt{d_k}} + W_{edge} \cdot e_{ij})$
-
-\subsection{Explainability in GNNs}
-
-Prior XAI approaches for graphs are limited:
-
-\begin{itemize}
-    \item \textbf{Attention-based:} Attention weights as importance (unreliable \cite{ref1})
-    \item \textbf{Gradient-based:} LIME/SHAP suffer from saturation \cite{ref1}
-    \item \textbf{GNNExplainer:} Single-perspective subgraph explanations
-    \item \textbf{GraphSVX:} Shapley values but computationally expensive
-\end{itemize}
-
-Our 6-method approach provides triangulation: no single method dominates, increasing robustness.
-
-\section{Methodology}
-
-\subsection{Architecture: ETGT-FRD}
-
-The ETGT-FRD model consists of 5 temporal graph transformer layers:
-
-\[
-h_i^{(l+1)} = \text{Norm} + \text{Attention}_{\text{edge}}(h_i^{(l)}, h_j^{(l)}, e_{ij}^{(l)})
-\]
-
-where edge attribute $e_{ij}$ includes:
-\begin{itemize}
-    \item Time delta: $\Delta t_{ij} = t_j - t_i$
-    \item Same-timestep flag: $\mathbb{1}(t_i = t_j)$
-\end{itemize}
-
-Each layer has 8 attention heads and residual connections. The output is passed through a 2-layer MLP for binary fraud classification.
-
-\subsection{Wavelet Temporal Encoding}
-
-Original features (165-dim) are augmented with PyWavelets decomposition:
-
-\[
-F_{\text{wavelet}} = \text{DWT}(F_{\text{original}}) \in \mathbb{R}^{32}
-\]
-
-generating 197-dimensional input. Wavelet basis captures multi-scale patterns invisible to standard Fourier features.
-
-\subsection{Training: Focal Loss for Imbalance}
-
-The Elliptic dataset is highly imbalanced (2\% fraud, 21\% licit, 77\% unknown). We use Focal Loss:
-
-\[
-\text{FL} = \alpha(1-p_t)^{\gamma} \text{CE}(p_t), \quad \gamma = 2.0, \alpha = 0.25
-\]
-
-This automatically upweights hard negatives and prevents easy examples from dominating gradients.
-
-\subsection{Six-Method Explainability Pipeline}
-
-\begin{table}[h]
-\centering
-\caption{XAI Methods Integration}
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Method} & \textbf{Type} & \textbf{Output} \\
-\hline
-Attention Maps & Structural & Per-layer heatmaps \\
-Captum IG & Gradient-based & Feature importance \\
-GraphSVX & Game-theoretic & Shapley values \\
-MC-Dropout & Bayesian & Uncertainty bounds \\
-Fraud Rings & Community & Subgraph communities \\
-LLM & Natural Language & Risk summary \\
-\hline
-\end{tabular}
-\end{table}
-
-\section{Experimental Results}
-
-\subsection{Dataset and Baselines}
-
-We evaluate on the Elliptic Bitcoin dataset \cite{ref1}:
-\begin{itemize}
-    \item 203,769 transactions, 49 time steps
-    \item 234,355 edges (payment flows)
-    \item 197 features after wavelet encoding
-\end{itemize}
-
-Baselines: XGBoost, GraphSAGE, GAT, TGAT.
-
-\subsection{Performance Metrics}
-
-\begin{table}[h]
-\centering
-\caption{Model Performance Comparison}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{Model} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{AUC-ROC} \\
-\hline
-XGBoost & 85\% & 72\% & 78\% & 0.96 \\
-GraphSAGE & 87\% & 74\% & 80\% & 0.97 \\
-GAT & 88\% & 76\% & 82\% & 0.97 \\
-TGAT & 90\% & 78\% & 84\% & 0.98 \\
-\textbf{ETGT-FRD} & \textbf{93\%} & \textbf{85\%} & \textbf{89\%} & \textbf{0.99} \\
-\hline
-\end{tabular}
-\end{table}
-
-Key findings:
-\begin{itemize}
-    \item +3\% precision improvement over TGAT via edge features
-    \item +7\% recall improvement via wavelet encoding
-    \item +5\% F1-score uplift from focal loss
-    \item 2-3 second inference latency with full explanations
-\end{itemize}
-
-\section{System Architecture and Deployment}
-
-\subsection{Production Stack}
-
-\begin{table}[h]
-\centering
-\caption{Technology Stack}
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Component} & \textbf{Technology} \\
-\hline
-Deep Learning & PyTorch 2.11.0 \\
-Graph NN & PyTorch Geometric 2.7.0 \\
-XAI & Captum 0.7.0, GraphSVX \\
-Visualization & Plotly 6.7.0 \\
-Web Framework & Streamlit 1.56.0 \\
-Blockchain & Web3.py 6.11.0 \\
-Time Series & PyWavelets 1.5.0 \\
-\hline
-\end{tabular}
-\end{table}
-
-\subsection{Three Prediction Modes}
-
-\begin{itemize}
-    \item \textbf{Random Mode:} Synthetic transactions for testing
-    \item \textbf{Dataset Mode:} Elliptic historical samples with feature editing
-    \item \textbf{Blockchain Mode:} Demo Bitcoin transactions with realistic patterns
-\end{itemize}
-
-\subsection{Eight Interactive Visualizations}
-
-Heatmaps (attention), bar charts (feature importance), histograms (distributions), gauges (confidence), network graphs (fraud rings), timelines, and more.
-
-\section{Blockchain Cross-Verification}
-
-Integration with Blockchair API provides real-time Bitcoin network verification:
-
-\begin{itemize}
-    \item Mixing protocol signals
-    \item Input/output ratio analysis
-    \item Fee anomalies
-    \item Blacklist membership checks
-\end{itemize}
-
-Predictions backed by cryptographic on-chain evidence prevent evasion and improve audit trails.
-
-\section{Discussion}
-
-\subsection{Advantages}
-
-\begin{itemize}
-    \item \textbf{Temporal Awareness:} Edge features capture transaction timing
-    \item \textbf{Explainability:} Six-method triangulation increases trust
-    \item \textbf{Production-Ready:} Sub-3s latency with caching
-    \item \textbf{Blockchain Integration:} On-chain verification layer
-    \item \textbf{Robustness:} Focal loss handles severe imbalance
-\end{itemize}
-
-\subsection{Limitations and Future Work}
-
-\begin{itemize}
-    \item Current labeling relies on historical Elliptic annotations
-    \item LLM explanations may hallucinate without proper grounding
-    \item Blockchain API has rate limits (future: add caching)
-    \item Dataset limited to Bitcoin (future: extend to Ethereum, other chains)
-\end{itemize}
-
-\section{Conclusion}
-
-ETGT-FRD v2.0 demonstrates that combining edge-aware transformers, multi-scale temporal encoding, and comprehensive explainability significantly improves Bitcoin fraud detection. The 93\% precision, 85\% recall, and 0.99 AUC-ROC represent substantial improvements over prior art. Blockchain cross-verification adds practical verification capabilities for production fraud detection systems. The production-ready Streamlit deployment with eight visualizations and audit trails positions this system for real-world deployment in financial institution compliance workflows.
-
-Future extensions include extension to multi-chain detection, reinforcement learning for adversarial robustness, and federated learning for privacy-preserving collaborative fraud detection.
-
-\begin{thebibliography}{99}
-
-\bibitem{ref1}
-Julia Markus, ``Digital Eavesdropper: Acoustic Speech Characteristics as Markers of Exacerbations in COPD Patients,'' \textit{Department of Language and Speech Pathology, Radboud University Nijmegen}, Netherlands, 2023.
-
-\bibitem{ref2}
-Program of ICMR on Cellular Development Health-Nutrition (PCDHN), ``Chronic Pulmonary Disease Dataset and Classification,'' \textit{International Center for Medical Research}, April 2024. [Online]. Available: https://www.kaggle.com/datasets
-
-\bibitem{ref3}
-S. Xu et al., ``Inductive representation learning on temporal graphs,'' in \textit{Proc. Int. Conf. Learn. Represent.}, 2020.
-
-\bibitem{ref4}
-W. Hamilton, Z. Ying, and S. Leskovec, ``Inductive representation learning on large graphs,'' in \textit{Proc. Adv. Neural Inf. Process. Syst.}, 2017, pp. 1024--1034.
-
-\bibitem{ref5}
-P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Lio, and Y. Bengio, ``Graph attention networks,'' in \textit{Proc. Int. Conf. Learn. Represent.}, 2018.
-
-\bibitem{ref6}
-T. Kipf and M. Welling, ``Semi-supervised classification with graph convolutional networks,'' in \textit{Proc. Int. Conf. Learn. Represent.}, 2017.
-
-\bibitem{ref7}
-M.T. Ribeiro, S. Singh, and C. Guestrin, ``Why should I trust you?: Explaining the predictions of any classifier,'' in \textit{Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining}, 2016, pp. 1135--1144.
-
-\bibitem{ref8}
-S.M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Proc. Adv. Neural Inf. Process. Syst.}, 2017, pp. 4765--4774.
-
-\bibitem{ref9}
-M. Bojarski et al., ``Explaining and harnessing adversarial examples,'' in \textit{Proc. Int. Conf. Learn. Represent.}, 2019.
-
-\bibitem{ref10}
-N. Asokan and S. Radhakrishnan, ``Explainable AI: Opportunities and challenges,'' \textit{arXiv preprint arXiv:2103.15025}, 2021.
 
 \end{thebibliography}
 
