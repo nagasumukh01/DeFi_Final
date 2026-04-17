@@ -1,14 +1,12 @@
-# 🚀 ETGT-FRD v2.0: Explainable Temporal Graph Transformer for Fraud Ring Detection
+# ETGT-FRD v2.0: Explainable Temporal Graph Transformer for Fraud Ring Detection in Bitcoin Networks
 
-> **Production-Grade Fraud Detection System** | Bitcoin Elliptic Dataset | PyTorch Geometric | XAI | Blockchain Integration
-
-![Status](https://img.shields.io/badge/Status-Production%20Ready-green?style=flat-square)
-![Version](https://img.shields.io/badge/Version-2.0-blue?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.9%2B-purple?style=flat-square)
+**D. Nagasumukh** and **Aneesh JP**  
+*Department of Computer Science and Engineering, REVA University, Bangalore, India*  
+**Under Guidance of:** Prof. Nikhil S. Tengli
 
 ---
 
-## 📌 Project Overview
+## Abstract
 
 **ETGT-FRD v2.0** (Explainable Temporal Graph Transformer for Fraud Ring Detection) is a production-ready deep learning system combining:
 
