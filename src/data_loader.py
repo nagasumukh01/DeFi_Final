@@ -204,6 +204,19 @@ class EllipticDataLoader:
                 bundle = pickle.load(f)
             return bundle["data"], bundle["splits"]
 
+        # Streamlit Cloud fallback: if raw CSVs are absent, boot with synthetic data
+        # so the app remains deployable and interactive.
+        missing = self._get_missing_raw_files()
+        if missing:
+            logger.warning(
+                "Raw dataset files not found (%s). Using synthetic fallback dataset.",
+                ", ".join(missing),
+            )
+            data, splits = self._build_synthetic_fallback()
+            with open(cache_path, "wb") as f:
+                pickle.dump({"data": data, "splits": splits}, f)
+            return data, splits
+
         logger.info("Processing raw Elliptic dataset …")
         data, splits = self._process()
 
@@ -211,6 +224,68 @@ class EllipticDataLoader:
             pickle.dump({"data": data, "splits": splits}, f)
         logger.info("Saved processed graph to %s", cache_path)
 
+        return data, splits
+
+    def _get_missing_raw_files(self) -> list[str]:
+        """Return names of required raw CSV files that are currently missing."""
+        ds = self.cfg["dataset"]
+        required = [
+            self.raw_dir / ds["features_file"],
+            self.raw_dir / ds["classes_file"],
+            self.raw_dir / ds["edgelist_file"],
+        ]
+        return [p.name for p in required if not p.exists()]
+
+    def _build_synthetic_fallback(self) -> Tuple[Data, Dict]:
+        """
+        Create a lightweight synthetic graph when Elliptic raw files are unavailable.
+
+        This keeps dashboard and XAI flows functional in hosted environments.
+        """
+        seed = int(self.cfg.get("project", {}).get("seed", 42))
+        rng = np.random.default_rng(seed)
+
+        N = 1200
+        E = 3600
+
+        # Synthetic raw features (165 dims) + wavelet temporal embeddings.
+        raw_feats = rng.standard_normal((N, 165), dtype=np.float32)
+        time_steps = rng.integers(1, self.T + 1, size=N, endpoint=False).astype(np.int64)
+        wavelet_emb = self.encoder.encode(time_steps)
+        x = np.concatenate([raw_feats, wavelet_emb], axis=1).astype(np.float32)
+
+        # Binary labels with strong imbalance similar to fraud detection settings.
+        labels = np.zeros(N, dtype=np.int64)
+        illicit_count = max(1, int(0.02 * N))
+        illicit_idx = rng.choice(N, size=illicit_count, replace=False)
+        labels[illicit_idx] = self.illicit_label
+
+        src = rng.integers(0, N, size=E, endpoint=False)
+        dst = rng.integers(0, N, size=E, endpoint=False)
+
+        edge_index = torch.tensor([src, dst], dtype=torch.long)
+        src_ts = time_steps[src]
+        dst_ts = time_steps[dst]
+        time_delta = np.abs(src_ts - dst_ts).astype(np.float32) / self.T
+        same_time = (src_ts == dst_ts).astype(np.float32)
+        edge_attr = np.stack([time_delta, same_time], axis=1).astype(np.float32)
+
+        data = Data(
+            x=torch.tensor(x, dtype=torch.float),
+            edge_index=edge_index,
+            edge_attr=torch.tensor(edge_attr, dtype=torch.float),
+            y=torch.tensor(labels, dtype=torch.long),
+            time_step=torch.tensor(time_steps, dtype=torch.long),
+            num_nodes=N,
+        )
+        data.tx_ids = np.array([f"synthetic_{i}" for i in range(N)], dtype=object)
+
+        splits = self._chronological_split(labels, time_steps)
+        logger.warning(
+            "Synthetic fallback graph ready: %d nodes, %d edges. Upload Elliptic CSVs for full dataset mode.",
+            N,
+            E,
+        )
         return data, splits
 
     # ------------------------------------------------------------------
